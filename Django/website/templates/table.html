@@ -1,0 +1,16 @@
+<html>
+<body>
+<table>
+<tr>
+	<th>主机名</th>
+	<th>主机ID</th>
+</tr>
+{% for name in host_name %}
+<tr>
+	<td>{{ name.host }}</td>
+	<td>{{ name.hostid }}</td>
+</tr>
+{% endfor %}
+</table>
+</body>
+</html>

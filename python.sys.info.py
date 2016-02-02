@@ -1,10 +1,10 @@
 #!/usr/bin/env python  
 #coding:utf-8  
-#这个脚本主要作用是获取系统的基本信息
 import psutil  
 import time  
 import sys  
 from optparse import OptionParser  
+import platform
 parser = OptionParser()    
 parser.add_option("-t", "--time", dest="time",  
                   help="此参数可查看当前下载占的带宽,-t是测试时间", metavar="10")    
@@ -12,6 +12,8 @@ parser.add_option("-d", "--deamon",action="store_false", dest="deamon", default=
                   help="后台运行此脚本")   
   
 def Sysinfo():  
+    Hostname = platform.node()
+    Sys_version = platform.platform()
     Boot_Start = time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(psutil.boot_time()))    
     time.sleep(0.5)  
     Cpu_usage = psutil.cpu_percent()  
@@ -23,7 +25,9 @@ def Sysinfo():
     Net_recv = psutil.net_io_counters().bytes_recv  
     Net_spkg = psutil.net_io_counters().packets_sent  
     Net_rpkg = psutil.net_io_counters().packets_recv  
-    BFH = r'%'  
+    BFH = r'%'
+    print " \033[1;32m主机名: %s\033[1;m" % Hostname  
+    print " \033[1;32m系统版本: %s\033[1;m" % Sys_version  
     print " \033[1;32m开机时间：%s\033[1;m"  % Boot_Start  
     print " \033[1;32m当前CPU使用率：%s%s\033[1;m" % (Cpu_usage,BFH)  
     print " \033[1;32m物理内存：%dM\t使用率：%s%s\033[1;m" % (RAM,RAM_percent,BFH)  

@@ -11,6 +11,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 import subprocess
 import datetime
+import os
 
 #---------------------01-------------------------------------
 #subprocess 模块可以用于执行shell命令
@@ -126,3 +127,72 @@ def contral_ips():
 	else:
 		print 'reverse address: %s' % ips.reverseNames()[0]
 	
+#----------------------06------------------------------------
+#dnspython ,python实现的一个DNS工具包，可以替代nslookup,dig等工具
+#dnspython 提供了一个nds解析器类 resolver,使用它的query方法实现域名的查询功能
+import dns.resolver
+def dns_resolver():
+   domain = raw_input("输入域名:")		#输入域名地址
+   A = dns.resolver.query(domain,'A')	#查询A记录
+   MX = dns.resolver.query(domain,'MX')	#查询MX记录
+   ns = dns.resolver.query(domain,'NS')	#查询NS记录
+   soa = dns.resolver.query(domain,'SOA') #查询SOA记录
+   #cname = dns.resolver.query(domain,'CNAME') #查询CNAME记录
+   #ptr = dns.resolver.query(domain,'PTR') #查询PTR记录
+   for i in A.response.answer:	#通过response.answer 方法获取查询回应信息
+	print i
+	for  j in i.items:	#遍历回应信息
+		print j.address
+   print "-------------------"
+   for i in MX:
+	print 'MX preference =',i.preference, 'mail exchanger =',i.exchange
+   print "-------------------"
+   for i in ns.response.answer:
+	for j in i.items:
+		print j.to_text()
+   print "-------------------"
+   for i in soa.response.answer:
+	for j in i.items:
+		print j.to_text()
+   print "-------------------"
+#监控多IP域名的IP活动情况,原理:先利用dns.resolve解析出IP列表，然后利用httplib进行IP的活动判断
+import httplib
+iplist = []
+domain = raw_input("监控的域名:")	#输入需要监控的域名,也可以在脚本中写死
+def get_iplist(domain=""):
+    try:
+    	A = dns.resolver.query(domain,'A')
+    except Exception,e:
+	print "dns resolver error:"+str(e)
+	return
+    for i in A.response.answer:
+	for j in i.items:
+		iplist.append(j.address)
+    return True
+
+def checkip(ip):
+    checkurl = ip+":80"
+    getcontent = ""
+    httplib.socket.setdefaulttimeout(5)	#定义http连接超时时间
+    conn = httplib.HTTPConnection(checkurl)	#创建http连接对象
+
+    try:
+	conn.request("GET","/",headers = {"Host":domain})	#发起url请求，添加host主机头
+	r = conn.getresponse()
+	getcontent = r.read(9)	#获取URL页面前15个字符，用于校验
+	print getcontent
+    finally:
+	if getcontent =="<!DOCTYPE":	#监控URL也的内容一般是定义好的
+		print ip +"[OK]"
+	else:
+		print ip+"[ERROR]"
+
+def dns_monitor():
+    if get_iplist(domain) and len(iplist) >0:
+	for ip in iplist:
+		checkip(ip)
+    else:
+	print "dns resolver error."
+	
+
+#----------------------07------------------------------------

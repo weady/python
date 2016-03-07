@@ -158,7 +158,7 @@ def dns_resolver():
 #监控多IP域名的IP活动情况,原理:先利用dns.resolve解析出IP列表，然后利用httplib进行IP的活动判断
 import httplib
 iplist = []
-domain = raw_input("监控的域名:")	#输入需要监控的域名,也可以在脚本中写死
+#domain = raw_input("监控的域名:")	#输入需要监控的域名,也可以在脚本中写死
 def get_iplist(domain=""):
     try:
     	A = dns.resolver.query(domain,'A')
@@ -196,3 +196,47 @@ def dns_monitor():
 	
 
 #----------------------07------------------------------------
+#difflib 模块实现两个字符串的差异比较
+import difflib
+import sys
+def com_string():
+    text1 = '''This is a test string v0.1
+	add
+	'''
+    text2 = '''This is a test string v0.2'''
+    text1_line = text1.splitlines()	#以行进行分割,以便进行对比
+    text2_line = text2.splitlines()
+    d = difflib.Differ()	#创建Differ()对象
+    diff_html = difflib.HtmlDiff()	# 使用htmlDiff生成html类型的类
+    diff = d.compare(text1_line,text2_line)
+    #print '\n'.join(list(diff))
+    #print "----------------------------------"
+    print diff_html.make_file(text1_line,text2_line)	#使用make_file()方法生成美观的HTML文档
+
+def readfile(filename):
+    try:
+	file_read = open(filename,'rb')
+	text = file_read.read().splitlines()
+	file_read.close
+	return text
+    except IOError as error:
+	print "read file error"+str(error)
+	sys.exit()
+
+def com_file():
+    try:
+	file1 = sys.argv[1]
+	file2 = sys.argv[2]
+    except Exception,e:
+	print "Error:"+str(e)
+	print "Usage: python.model.py file1 file2"
+    if file1 =="" or file2 =="":
+	print "usage: $s file1 file2" % sys.argv[0]
+	sys.exit()
+    text1_line = readfile(file1)
+    text2_line = readfile(file2)
+    d = difflib.HtmlDiff()
+    print d.make_file(text1_line,text2_line)
+
+com_file()
+

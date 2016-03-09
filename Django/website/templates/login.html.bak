@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>运维管理系统</title>
+<link rel="stylesheet" type="text/css" href="/static/css/login.css" />
+</head>
+
+<body style="background:#fff">
+<div class="nav_top">
+  <div class="nav_tcon">
+        <div class="logotitle">
+          <span></span>
+            <p></p>
+        </div>
+        <div class="logoname" style="font-size:30px">运维管理系统登录界面</div>
+    </div>
+</div>
+<div class="logo_content">
+  <div class="logo_ccon">
+        <div class="logo_enter">
+		<form action="" method="POST">
+		 {% csrf_token %}
+        	<input type = 'text' class="input-block-level" placeholder="用户名" name="username">  
+        	<input type = 'password' placeholder="密码" name="password"> 
+        	<br>
+        	<label class="checkbox">
+         		<input type="checkbox" value="remember-me"> 记住我
+        	</label>
+        	<br>
+	        <input type = 'submit' placeholder="Login" value="Login">
+	    	</form>  
+        </div>
+    </div>
+</div>
+<div class="down_info">
+  <div class="information">
+      <a href="#">关于我们</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">联系我们</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#">法律声明</a>
+    </div>
+    <p style="font-size:15px"> </p>
+</div>
+</body>
+</html>

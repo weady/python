@@ -62,7 +62,7 @@ def logout(request):
     response.delete_cookie('username')
     return response
 
-@requires_login
+#@requires_login
 def index(request):
 	return render_to_response('index.html')
 #def table(request):

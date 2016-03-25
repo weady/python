@@ -65,5 +65,5 @@ def logout(request):
 #@requires_login
 def index(request):
 	return render_to_response('index.html')
-#def table(request):
-	#return render_to_response('table.html')
+def hosts(request):
+	return render_to_response('host_contral.html')

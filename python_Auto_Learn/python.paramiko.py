@@ -46,7 +46,8 @@ def no_passwd_ssh():
 	print stdout.read()
 	ssh.close()
 
-#实现堡垒机模式下远程命令执行
+#实现堡垒机模式下远程命令执行，利用invoke_shell机制来实现通过堡垒机实现服务器操作，原理是sshclient.connect到
+#堡垒机后开启一个新的ssh会话，通过ssh user@ip 实现远程执行命令
 def bl_exec_command():
 	blip = "192.168.1.200"
 	bluser = "wangdong"
@@ -110,5 +111,68 @@ def bl_exec_command():
 	channel.close()
 	ssh.close()
 
+#实现堡垒机模式下的远程文件上传,原理是通过paramiko的sftpclient将文件从办公设备上传至堡垒机指定的临时目录
+#然后通过sshclient的invoke_shell 开启ssh会话执行scp命令,实现文件的上传
+def bl_put_file():
+	blip = ""	#堡垒机
+	bluser = ""
+	blpasswd = ""
+
+	hostname = "" #定义业务服务器信息
+	username = ""
+	password = ""
+
+	tmpdir = ""
+	remotedir = ""
+	localpath = ""
+	tmppath = tmpdir+""
+	remotepath = remotedir+""
+	port = 22
+	passinfo='\'s password: '
+	paramiko.util.log_to_file('syslogin.log')
+	t = paramiko.Transport((blip,port))
+	t.connect(username=bluser,password=blpasswd)
+	sftp = paramiko.SFTPClient.from_transport(t)
+	sftp.put(localpath,tmppath)	#上传本地源文件到堡垒机临时路径
+	sftp.close()
+
+	ssh = paramiko,SSHClient()
+	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+	ssh.connect(hostname=blip,username=bluser,password=blpasswd)
+
+	channel = ssh.invoke_shell()
+	channel.settimeout(10)
+
+	buff = ''
+	resp = ''
+	#SCP 中转目录文件到目标主机
+	channel.send('scp '+tmppath+' '+username+'@'+hostname+':'+remotepath+'\n')
+	while not buff.endswith(passinfo):
+		try:
+			resp = channel.recv(9999)
+		except Exception,e:
+			print 'Error info: %s connect time.' % (str(e))
+			channel.close()
+			ssh.close()
+			sys.exit()
+		buff +=resp
+		if not buff.find('yes/no')==-1:
+			channel.send('yes\n')
+			buf=''
+
+	channel.send(passwod+'\n')
+
+	buff=''
+	while not buff.endswith('# '):
+		resp = channel.recv(9999)
+		if not resp.find(passinfo)==-1:
+			print 'Error info:Authentication failed.'
+			channel.close()
+			ssh.close()
+			sys.exit()
+
+		buff +=resp
+	print buff
+	channel.close()
+	ssh.close()
 	
-bl_exec_command()

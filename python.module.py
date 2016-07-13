@@ -253,7 +253,7 @@ def com_dir():
     dirobj.report_partial_closure()	#比较当前指定目录及第一子目录中的内容
     dirobj.report_full_closure()	#递归比较所有指定目录的内容
 
-    print "left_list:" + str(dirobj.left_list)
+    print "left_list:" + str(dirobj.left_list)	#只列出当前目录下的，没有对子目录进行分析
     print "right_list:" + str(dirobj.right_list)
     print "common:" + str(dirobj.common)
     print "left_only:" + str(dirobj.left_only)
@@ -284,7 +284,7 @@ def compare(dir1,dir2):	#递归获取更新项函数
     if len(dircomp.common_dirs) >0:	#判断是否存在相同的字目录，以便递归
 	for item in dircomp.common_dirs:	#递归子目录
 		compare(os.path.abspath(os.path.join(dir1,item)),os.path.abspath(os.path.join(dir2,item)))
-    return holderlist
+    return holderlist	#返回的是源目录中的新文件和变化的文件列表
 
 def compare_main():
     if len(sys.argv) >2:
@@ -326,4 +326,19 @@ def compare_main():
 		if os.path.isfile(item[0]):	#判断是否为文件,是则进行复制操作
 			shutil.copy2(item[0],item[1])
 
-compare_main()
+#----------------------08------------------------------------
+#pycurl 支持ftp,http,https,telnet 类似linux下的curl命令，可以实现探测web服务质量情况
+#----------------------09------------------------------------
+#csv 模块
+import csv
+def csv_mode():
+	rows = [{'Column1': '0', 'Column2': '1', 'Column3': '2', 'Column4': '3'},
+	{'Column1': '0', 'Column2': '1', 'Column3': '2', 'Column4': '3'},
+	{'Column1': '0', 'Column2': '1', 'Column3': '2', 'Column4': '3'},
+	{'Column1': '0', 'Column2': '1', 'Column3': '2', 'Column4': '3'},
+	{'Column1': '0', 'Column2': '1', 'Column3': '2', 'Column4': '3'}]
+
+	fieldnames = ['Column1', 'Column2', 'Column3', 'Column4']
+	dict_writer = csv.DictWriter(open(r'my.csv', 'wb'), fieldnames=fieldnames)
+	dict_writer.writeheader() #写入首行
+	dict_writer.writerows(rows)

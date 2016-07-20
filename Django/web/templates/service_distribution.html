@@ -1,0 +1,42 @@
+{% extends "nav_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<label class="panel-title" style="margin-right: 65%;">云平台服务分布信息</label>	
+				<input type="text" style="height: 34px;width: 170px;text-align: center;font-size: 18px;" placeholder="请输入主机名">
+				<button class="btn btn-info">搜索</button>
+			</div>			
+			<div class="panel-body">
+				<table class="table table-bordered">
+				   <thead>
+				      <tr>
+				        <th style="text-align: center">集群名</th>
+				        <th style="text-align: center">主机名</th>
+				        <th style="text-align: center">服务名</th>
+				        <th style="text-align: center">服务号</th>
+				        <th style="text-align: center">状态</th>
+						<th style="text-align: center">功能</th>
+				        <th style="text-align: center">备注</th>
+				      </tr>
+				   </thead>
+				   <tbody>
+				   	{% for value in service_info %}
+				      <tr>
+				         <td style="font-size: 15px;text-align: center">{{ value.0 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.1 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.2 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.3 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.4 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.5 }}</td>
+				         <td style="font-size: 15px;text-align: center">{{ value.6 }}</td>
+				      </tr>
+					{% endfor %}
+				   </tbody>
+				</table>
+			</div>
+		</div>
+    </div>
+</div>
+{% endblock %}

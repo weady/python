@@ -1,0 +1,41 @@
+{% extends "nav_base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-sm-12">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<label class="panel-title" style="margin-right: 65%;">云平台域名信息</label>	
+				<input type="text" style="height: 34px;width: 170px;text-align: center;font-size: 18px;" placeholder="请输入主机名">
+				<button class="btn btn-info">搜索</button>
+			</div>			
+			<div class="panel-body">
+				<table class="table table-bordered">
+				   <thead>
+				      <tr>
+				         <th style="width: 50px;text-align: center">序号</th>
+				         <th style="width: 80px;text-align: center">主机名</th>
+				         <th>域名</th>
+				         <th style="width: 200px;text-align: center">操作</th>
+				      </tr>
+				   </thead>
+				   <tbody>
+				   	{% for domain in domain_info %}
+				      <tr>
+				         <td>01</td>
+				         <td>{{ domain.0 }}</td>
+				         <td>{{ domain.1 }}</td>
+				         <td>
+				         	<button class="btn btn-waring btn-xs">禁用</button>
+				         	<button class="btn btn-success btn-xs">启用</button>
+				         	<button class="btn btn-info btn-xs">修改</button>
+				         	<button class="btn btn-danger btn-xs">删除</button>
+				         </td>
+				      </tr>
+				    {% endfor %}
+				   </tbody>
+				</table>
+			</div>
+		</div>
+    </div>
+</div>
+{% endblock %}

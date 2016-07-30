@@ -7,12 +7,14 @@ from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator,InvalidPage,EmptyPage #分页
 import json
 from django.http import JsonResponse
 import subprocess
 import re
-from auto_operation.bin import base
+from auto_operation.bin import baseclass #自定义的类
 import platform
+
 #验证用户是否登录的装饰器
 
 def requires_login(view):
@@ -69,42 +71,233 @@ def logout(request):
 #@requires_login
 def index(request):
 	return render_to_response('index.html')
-#执行主机目录，通过/etc/hosts获取到主机列表
-def command(request):
-    hostname=base.get_host_lists()
-    local_name=platform.node()
+#--------------------------云平台管理模块-----------------------------------
+#主机管理子模块
+#1.执行命令
+def hostcontral(request):
+    hostlist = []   #存储执行命令的主机
+    key_list = ['f_hostname']
+    database_sql = baseclass.db_sql()
+    hostnames_sql = database_sql.get_s_sql('t_host_info',key_list)
+    srvgroup_sql = "select f_servername from t_service_distribution group by f_servername having f_servername not like 'mysql'"
+    hostnames = database_sql.db_connect('root','123456','192.168.36.108','auto_operation',hostnames_sql)
+    grouplists = database_sql.db_connect('root','123456','192.168.36.108','auto_operation',srvgroup_sql)
+
     if request.method == "POST":
         data=request.POST['cmd']
-        host=request.POST['host_name']
-        if re.search(r'(rm)',data,re.I):
+        host=request.POST['hostname']
+        group = request.POST['groupname']
+        if re.search(r'rm|reboot|shutdown|init 0|init 6',data,re.I):
             result="这是个危险命令" 
             return HttpResponse(result)
-        elif data == "" or host == "":
-            result = "请选择主机或输入命令"
+        elif data == "":
+            result = "请输入命令"
             return HttpResponse(result)
         else:
-            if host == local_name:
-                disk = subprocess.Popen(data,shell=True,stdout=subprocess.PIPE)
-                return HttpResponse(disk.stdout.readlines())
-            else:
+            if host and data:
+                hostlist.append(host)
+                #实例化SSH连接
+                SSHConection = baseclass.sshconn(hostlist,'root',data)
+                result = SSHConection.sshentrance()
+                return HttpResponse(result)
+            if group and data:
+                sql = "select distinct f_hostname from t_service_distribution where f_servername = '%s'" % group
+                host = database_sql.db_connect('root','123456','192.168.36.108','auto_operation',sql)
+                for h in host:
+                    hostlist.append(h[0])                 
+                SSHConection = baseclass.sshconn(hostlist,'root',data)
+                result = SSHConection.sshentrance()
+                # for item in result:
+                return HttpResponse(result)
+    return render_to_response('execcmd.html',{'names':hostnames,'groups':grouplists})
+#2.文件同步
 
-                return HttpResponse(host)
-    return render_to_response('exec_cmd.html',{'names':hostname})
-
-#文件的上传和下载
-def trans_file(request):
-    return render_to_response('transfile.html')
-#计划任务
+#3.定时任务
 def crontab(request):
     return render_to_response('crontab.html')
-#域名管理
+#4.无密配置
+
+
+#录流管理子模块
+def recordmanage(request):
+    return render_to_response('recordmanage.html')
+#数据库管理子模块
+def dbmanage(request):
+    return render_to_response('dbmanage.html')
+#域名管理子模块
 def domain(request):
-    domain_lists=base.get_domain_info()
-    return render_to_response('domain.html',{'domain_info':domain_lists})
-#ilogslave
-def ilogslave(request):
-    return render_to_response('ilogslave.html')
+    select_dict = {}
+    select_value = ""
+    search = ""
+    database_sql = baseclass.db_sql()
+    key_list = ['domain_name','domain_info','domain_type','domain_modified_time']
+    sql = database_sql.get_s_sql('dns_domain_info',key_list,selecttype='vague')
+
+    if request.method == 'POST':
+        select_value = request.POST['conditions']
+        search = request.POST['searchname']
+        if search and select_value:
+            select_dict[select_value] = search
+        if search != "" and select_value != "":
+            sql = database_sql.get_s_sql('dns_domain_info',key_list,select_dict,selecttype='vague')
+        else:
+            sql = sql
+    else:
+        if request.GET.get('value') and request.GET.get('search'):
+            select_value = request.GET.get('value')
+            search = request.GET.get('search')
+            select_dict[select_value] = search
+            sql = database_sql.get_s_sql('dns_domain_info',key_list,select_dict,selecttype='vague')
+        else:
+            sql = sql
+        
+
+    domain_sql_result = database_sql.db_connect('root','123456','192.168.36.100','homed_iuds',sql)
+    ONE_PAGE_OF_DATA = 20 
+    try:
+        curPage = int(request.GET.get('curPage', '1'))
+        allPage = int(request.GET.get('allPage','1'))
+        pageType = str(request.GET.get('pageType', ''))
+    except ValueError:
+        curPage = 1
+        allPage = 1
+        pageType = ''
+
+    #判断点击了【下一页】还是【上一页】
+    if pageType == 'pageDown':
+        curPage += 1
+    elif pageType == 'pageUp':
+        curPage -= 1
+
+    startPos = (curPage - 1) * ONE_PAGE_OF_DATA
+    endPos = startPos + ONE_PAGE_OF_DATA
+    posts = domain_sql_result[startPos:endPos]
+    List=[]
+    for i in range(1,len(posts)):
+        for d in posts:
+            a = list(d)
+            a.insert(0,i)
+        List.append(a)
+
+    if curPage == 1 and allPage == 1: #标记1
+        allPostCounts = len(domain_sql_result)
+        allPage = allPostCounts / ONE_PAGE_OF_DATA
+        remainPost = allPostCounts % ONE_PAGE_OF_DATA
+        if remainPost > 0:
+            allPage += 1
+    return render_to_response('domain.html',{'domain_info':List,'allPage':allPage, 'curPage':curPage,'selectvalue':select_value,'searchvalue':search})
+
+#--------------------------云平台业务分布模块-----------------------------------
 #云平台的服务分布
 def servicedistribute(request):
-    servicedistribute_lists = base.get_service_distribute()
-    return render_to_response('service_distribution.html',{'service_info':servicedistribute_lists})
+    select_dict = {}
+    select_value = ""
+    search = ""
+    #实例化数据库操作
+    database_sql = baseclass.db_sql()
+    key_list = ['f_clustername','f_hostname','f_servername','f_serverid','f_status','f_function','f_description']
+    sql = database_sql.get_s_sql('t_service_distribution',key_list,select_dict,selecttype='vague')
+    
+
+    if request.method == 'POST':
+        select_value = request.POST['conditions']
+        search = request.POST['searchname']
+        if search and select_value:
+            select_dict[select_value] = search
+        if search != "" and select_value != "":
+            sql = database_sql.get_s_sql('t_service_distribution',key_list,select_dict,selecttype='vague')
+        else:
+            sql = sql
+    else:
+        if request.GET.get('value') and request.GET.get('search'):
+            select_value = request.GET.get('value')
+            search = request.GET.get('search')
+            select_dict[select_value] = search
+            sql = database_sql.get_s_sql('t_service_distribution',key_list,select_dict,selecttype='vague')
+        else:
+            sql = sql
+
+    servicedistribute_lists = database_sql.db_connect('root','123456','192.168.36.108','auto_operation',sql)
+    ONE_PAGE_OF_DATA = 20 
+    try:
+        curPage = int(request.GET.get('curPage', '1'))
+        allPage = int(request.GET.get('allPage','1'))
+        pageType = str(request.GET.get('pageType', ''))
+    except ValueError:
+        curPage = 1
+        allPage = 1
+        pageType = ''
+
+    #判断点击了【下一页】还是【上一页】
+    if pageType == 'pageDown':
+        curPage += 1
+    elif pageType == 'pageUp':
+        curPage -= 1
+
+    startPos = (curPage - 1) * ONE_PAGE_OF_DATA
+    endPos = startPos + ONE_PAGE_OF_DATA
+    posts = servicedistribute_lists[startPos:endPos]
+
+    if curPage == 1 and allPage == 1: #标记1
+        allPostCounts = len(servicedistribute_lists)
+        allPage = allPostCounts / ONE_PAGE_OF_DATA
+        remainPost = allPostCounts % ONE_PAGE_OF_DATA
+        if remainPost > 0:
+            allPage += 1
+
+    return render_to_response("servicedistribution.html",{'service_info':posts, 'allPage':allPage, 'curPage':curPage,'selectvalue':select_value,'searchvalue':search})
+
+#云主机的基本信息
+def hostbaseinfo(request):
+    select_dict = {}
+    select_value = ""
+    search = ""
+    #实例化数据库操作
+    database_sql = baseclass.db_sql()
+    key_list = ['f_clustername','f_hostname','f_liip','f_hiip','f_loip','f_hoip','f_description']
+    sql = database_sql.get_s_sql('t_host_info',key_list,select_dict,selecttype='accurate')
+    
+    if request.method == 'POST':
+        select_value = request.POST['conditions']
+        search = request.POST['searchname']
+        if search and select_value:
+            select_dict[select_value] = search
+        if search != "" and select_value != "":
+            sql = database_sql.get_s_sql('t_host_info',key_list,select_dict,selecttype='accurate')
+        else:
+            sql = sql
+
+    servicedistribute_lists = database_sql.db_connect('root','123456','192.168.36.108','auto_operation',sql)
+    ONE_PAGE_OF_DATA = 20 
+    try:
+        curPage = int(request.GET.get('curPage', '1'))
+        allPage = int(request.GET.get('allPage','1'))
+        pageType = str(request.GET.get('pageType', ''))
+    except ValueError:
+        curPage = 1
+        allPage = 1
+        pageType = ''
+
+    #判断点击了【下一页】还是【上一页】
+    if pageType == 'pageDown':
+        curPage += 1
+    elif pageType == 'pageUp':
+        curPage -= 1
+
+    startPos = (curPage - 1) * ONE_PAGE_OF_DATA
+    endPos = startPos + ONE_PAGE_OF_DATA
+    posts = servicedistribute_lists[startPos:endPos]
+
+    if curPage == 1 and allPage == 1: #标记1
+        allPostCounts = len(servicedistribute_lists)
+        allPage = allPostCounts / ONE_PAGE_OF_DATA
+        remainPost = allPostCounts % ONE_PAGE_OF_DATA
+        if remainPost > 0:
+            allPage += 1
+
+    return render_to_response("hostbaseinfo.html",{'hostbaseinfo':posts, 'allPage':allPage, 'curPage':curPage,'selectvalue':select_value,'searchvalue':search})
+
+#--------------------------设置模块-----------------------------------
+#excel数据导入到数据库
+def configure(request):
+    return render_to_response('configure.html')

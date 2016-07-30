@@ -1,15 +1,20 @@
 {% extends "navbase.html" %}
+{% block toggle %}
+	<ol class="breadcrumb">
+	  <li style="font-size: 15px"><a href="{% url 'auto_operation.views.servicedistribute' %}">服务分布信息</a></li>
+	  <li style="font-size: 15px"><a href="{% url 'auto_operation.views.hostbaseinfo' %}">主机基本信息</a></li>
+	</ol>
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-sm-12">
 		<div class="panel panel-info">
 			<div class="panel-heading">
-				<label class="panel-title" style="margin-right: 65%;">云平台域名信息</label>	
+				<label class="panel-title">主机基本信息</label>
 				<form action="" method="post" style="float: right">
 					<select name="conditions" style="height: 33px;text-align: center;font-size: 15px">
 						<option value=""></option>
-						<option value="domain_name">域名</option>
-						<option value="domain_info">IP</option>
+						<option value="f_hostname">主机名</option>
 					</select>
 					<input name="searchname" style="height: 33px;width: 120px; text-align: center;font-size: 15px" type="text" placeholder="请输入查询项">
 					<button type="submit" class="btn btn-info">搜索</button>
@@ -20,36 +25,40 @@
 				   <thead>
 				      <tr>
 				      	<th>
+<!-- 				      		<div class="icheckbox_square-green">
+				      			<input type="checkbox" name="">
+				      		</div> -->
 				      	</th>
-				         <th style="text-align: center">序号</th>
-				         <th style="text-align: center">域名</th>
-				         <th style="text-align: center">IP</th>
-				         <th style="text-align: center">类型</th>
-				         <th style="text-align: center">修改时间</th>
-				         <th style="text-align: center">操作</th>
+				        <th style="text-align: center">集群名</th>
+				        <th style="text-align: center">主机名</th>
+				        <th style="text-align: center">低速内网IP</th>
+				        <th style="text-align: center">高速内网IP</th>
+				        <th style="text-align: center">低速外网IP</th>
+						<th style="text-align: center">高速外网IP</th>
+				        <th style="text-align: center">备注</th>
+				        <th style="text-align: center">操作</th>
 				      </tr>
 				   </thead>
 				   <tbody>
-				   	{% for domain in domain_info %}
+				   	{% for value in hostbaseinfo %}
 				      <tr>
-						<td style="text-align: center">
+						<td>
 							<div class="icheckbox_square-green">
 								<input type="checkbox" name="">
 							</div>
 						</td>
-				         <td style="text-align: center">{{ domain.0}}</td>
-				         <td style="text-align: center">{{ domain.1 }}</td>
-				         <td style="text-align: center">{{ domain.2 }}</td>
-				         <td style="text-align: center">{{ domain.3 }}</td>
-				         <td style="text-align: center"> {{ domain.4 | default_if_none:"(0000-00-00 00:00)" | date:'Y-j-d f'}}</td>
-				         <td style="text-align: center">
-				         	<button class="btn btn-waring btn-xs">禁用</button>
-				         	<button class="btn btn-success btn-xs">启用</button>
-				         	<button class="btn btn-info btn-xs">修改</button>
-				         	<button class="btn btn-danger btn-xs">删除</button>
-				         </td>
+				        <td style="font-size: 15px;text-align: center">{{ value.0 }}</td>
+				        <td style="font-size: 15px;text-align: center">{{ value.1 }}</td>
+				        <td style="font-size: 15px;text-align: center">{{ value.2 }}</td>
+				        <td style="font-size: 15px;text-align: center">{{ value.3 }}</td>
+				        <td style="font-size: 15px;text-align: center">{{ value.4 }}</td>
+				        <td style="font-size: 15px;text-align: left">{{ value.5 }}</td>
+				        <td style="font-size: 15px;text-align: left">{{ value.6 }}</td>
+				        <td style="text-align: center">
+				         	<button class="btn btn-info btn-xs">编辑</button>
+				        </td>
 				      </tr>
-				    {% endfor %}
+					{% endfor %}
 				   </tbody>
 				</table>
 				<div style="text-align: right;margin-right: 2%;font-size: 20px">

@@ -152,7 +152,7 @@ def domain(request):
             sql = sql
         
 
-    domain_sql_result = database_sql.db_connect('root','123456','192.168.36.100','homed_iuds',sql)
+    domain_sql_result = database_sql.db_connect('root','xxx','192.168.xxx.xxx','database',sql)
     ONE_PAGE_OF_DATA = 20 
     try:
         curPage = int(request.GET.get('curPage', '1'))

@@ -38,7 +38,7 @@ def callback(a,b,c):
 		download_process = 100
 	print '%.2f%%' % download_process+'\r'
 
-	urllib.urlretrieve(url,'homed.html',callback)
+	urllib.urlretrieve(url,'web.html',callback)
 #-----------------------------------------------------------------------------
 def auto_detect(url):
 	content = urllib.urlopen(url).read()

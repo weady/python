@@ -13,7 +13,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 #zabbix APID的信息和头部信息的定义
-url = "http://192.168.35.114/zabbix/api_jsonrpc.php"
+url = "http://xxxxx/zabbix/api_jsonrpc.php"
 header = {"Content-Type": "application/json"}
 #定义认证函数，可以使用api
 def auth():

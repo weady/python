@@ -28,3 +28,25 @@ while 1:
     else:
     	print s.recv(1024)
 s.close()
+
+#udp协议的客户端
+def UDPCLIENT():
+        HOST = '192.168.36.108'
+        PORT = 21567
+        BUFSIZE = 1024
+        ADDR = (HOST,PORT)
+
+        udpclient = socket(AF_INET,SOCK_DGRAM)
+
+        while True:
+                data = raw_input('>')
+                if not data:
+        	       break
+                udpclient.sendto(data,ADDR)
+                data,ADDR = udpclient.recvfrom(BUFSIZE)
+                if not data:
+                        break
+                print data
+        udpclient.close()
+        
+ 

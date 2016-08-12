@@ -7,6 +7,27 @@
 import socket,commands
 import SocketServer
 import time
+
+#udp协议的通信
+def UDP():
+    HOST = '192.168.36.108'
+    PORT = 21567
+    BUFSIZE = 1024
+    ADDR = (HOST,PORT)
+
+    udpser = socket(AF_INET,SOCK_DGRAM)
+    udpser.bind(ADDR)
+
+    while True:
+        print 'waiting for connection .....'
+        data,addr = udpser.recvfrom(BUFSIZE)
+        udpser.sendto('[%s] %s' % (time.ctime(),data),addr)
+
+        print '.....received from and returned to:',addr
+
+    udpser.close()
+    
+    
 #单进程的socket通信,利用的模块是socket commands模块
 def single_socket():
     host = '192.168.36.130'

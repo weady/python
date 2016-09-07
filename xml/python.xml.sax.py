@@ -1,6 +1,8 @@
 #-*- coding:utf8 -*-
 #
-#
+#	by wangdd 2016/09/08
+
+# 利用xml.sax处理xml文件需要重写startElement(),endElement(),characters()三个方法
 
 import xml.sax
 

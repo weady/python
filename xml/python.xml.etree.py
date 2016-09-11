@@ -3,7 +3,11 @@
 
 #利用xml.etree.ElementTree操作xml文件
 
-import xml.etree.ElementTree as ET
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
+
 
 def readxml():
 	tree = ET.parse('test.xml')

@@ -168,4 +168,95 @@ def insertion_sort(seq):
                 seq[i-1] = tmp
                 i = i - 1
 
+##############################################################################
+#发生器 yield
+import sys
+
+def read_file(fpath): #通过发生器读取文件,减少对内存的占用
+   BLOCK_SIZE =1024
+   with open(fpath, 'rb') as f:
+       while True:
+           block =f.read(BLOCK_SIZE)
+           if block:
+               yield block
+           else:
+               return
+
+filename = sys.argv[1]
+
+for i in read_file(filename):
+        print i 
+
+##############################################################################
+#一个使用了多线程处理的服务器示例
+from SocketServer import TCPServer, ThreadingMixIn, StreamRequestHandler
+#定义支持多线程的服务类，注意是多继承
+class Server(ThreadingMixIn, TCPServer):
+	pass
+#定义请求处理类
+class Handler(StreamRequestHandler)：
+	def handle(self):
+		addr = self.request.getpeername()
+		print 'Got connection from ',addr
+		self.wfile.write('Thank you for connection')
+		server = Server(('', 1234), Handler)#实例化服务类
+		server.serve_forever()#开启服务
+
+##############################################################################
+#解决中文乱码的函数 
+def deal_char():
+	s="中文"
+	if isinstance(s, unicode): 
+	    #s=u"中文"  
+	    print s.encode('gb2312') 
+	else: 
+	    #s="中文"  
+	    print s.decode('utf-8').encode('gb2312')
+
+##############################################################################
+#异常处理方式
+#1.try execpt
+	try:
+		pass
+	except Exception as e:
+		print Exception,":",e 
+#2.采用traceback模块
+	import traceback
+	try:
+		pass
+	except:
+		traceback.print.exc()
+
+	#把异常写入到文件中
+	try:
+		pass
+	except:
+		f=open('text.log','a')
+		traceback.print_exc(file=f)
+		f.flush()
+		f.close()
+#3.采用sys模块回溯最后的异常
+	import sys
+	try:
+		pass
+	except:
+		info = sys.exc_info()
+		print info[0],":",info[1]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

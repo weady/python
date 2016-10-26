@@ -364,6 +364,8 @@ fileinput.close()关闭队列
 3：parser.add_argument()
 	方法add_argument(name or flags...[, action][, nargs][, const][, default][, type][, choices][, required][, help][, metavar][, dest])
 	nargs：命令行参数的个数，一般使用通配符表示，其中，'?'表示只用一个，'*'表示0到多个，'+'表示至少一个
+	dest: 这个参数相当于把位置或者选项关联到一个特定的名字
+	metavar: 这个参数用于help 信息输出中
 4：parser.parse_args()
 '''
 import argparse

@@ -342,3 +342,42 @@ def csv_mode():
 	dict_writer = csv.DictWriter(open(r'my.csv', 'wb'), fieldnames=fieldnames)
 	dict_writer.writeheader() #写入首行
 	dict_writer.writerows(rows)
+
+#----------------------10------------------------------------
+#fileinput 模块
+'''
+fileinput.input()返回能够用于for循环遍历的对象
+fileinput.filename()返回当前文件的名称
+fileinput.lineno()返回当前已经读取的行的数量
+fileinput.filelineno()返回当前读取的行的行号
+fileinput.isfirstline()判断最后一个是否从stdin中读
+fileinput.close()关闭队列
+'''
+#----------------------11------------------------------------
+#argparse模块的作用是用于解析命令行参数
+'''
+1：import argparse
+2：parser = argparse.ArgumentParser() 
+	方法ArgumentParser(prog=None, usage=None,description=None, epilog=None, parents=[],formatter_class=argparse.HelpFormatter,
+	prefix_chars='-',fromfile_prefix_chars=None, argument_default=None,conflict_handler='error', add_help=True)
+	一般只需要传递description参数
+3：parser.add_argument()
+	方法add_argument(name or flags...[, action][, nargs][, const][, default][, type][, choices][, required][, help][, metavar][, dest])
+	nargs：命令行参数的个数，一般使用通配符表示，其中，'?'表示只用一个，'*'表示0到多个，'+'表示至少一个
+4：parser.parse_args()
+'''
+import argparse
+
+def parse_arg():
+	description = 'This is a test'
+	parser = argparse.ArgumentParser(description = description)
+	parser.add_argument('address',nargs = '*',help='arg list')
+	parser.add_argument('-p','--port',type=int,help='arg type')
+	args = parser.parse_args();
+	return args
+
+args = parse_arg()
+for address in args.address:
+	print 'IP address is : %s .' % address
+print 'Type is : %s .' % args.port
+

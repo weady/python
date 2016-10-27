@@ -383,3 +383,10 @@ for address in args.address:
 	print 'IP address is : %s .' % address
 print 'Type is : %s .' % args.port
 
+#----------------------12------------------------------------
+#getpass 模块可以对输入的密码不在终端显示明文
+#input() 输入的是数字 raw_input() 处理输入的字符串
+	user = raw_input('Please input user name:')
+	passwd = getpass.getpass('Please input your password:')
+
+

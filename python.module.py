@@ -385,7 +385,13 @@ print 'Type is : %s .' % args.port
 
 #----------------------12------------------------------------
 #getpass 模块可以对输入的密码不在终端显示明文
-#input() 输入的是数字 raw_input() 处理输入的字符串
+'''
+当输入为纯数字时
+    input返回的是数值类型，如int,float
+    raw_inpout返回的是字符串类型，string类型
+输入字符串为表达式
+    input会计算在字符串中的数字表达式，而raw_input不会
+'''
 	user = raw_input('Please input user name:')
 	passwd = getpass.getpass('Please input your password:')
 

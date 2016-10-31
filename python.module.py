@@ -15,6 +15,26 @@ import os
 
 #---------------------01-------------------------------------
 #subprocess 模块可以用于执行shell命令
+'''
+subprocess.call()
+	父进程等待子进程完成
+	返回退出信息(returncode，相当于exit code)
+subprocess.check_call()
+	父进程等待子进程完成
+	返回0
+	检查退出信息，如果returncode不为0，则举出错误subprocess.CalledProcessError
+subprocess.check_output()
+	父进程等待子进程完成
+	返回子进程向标准输出的输出结果
+	检查退出信息，如果returncode不为0，则举出错误subprocess.CalledProcessError
+Popen对象创建后，主程序不会自动等待子进程完成。我们必须调用对象的wait()方法，父进程才会等待
+Popen()建立子进程的时候改变标准输入、标准输出和标准错误，并可以利用subprocess.PIPE将多个子进程的输入和输出连接在一起，构成管道(pipe)
+	stdin stdout stderr
+	subprocess.PIPE实际上为文本流提供一个缓存区。child1的stdout将文本输出到缓存区，随后child2的stdin从该PIPE中将文本读取走。child2的输出文本也被存放在PIPE中，直到communicate()方法从PIPE中读取出PIPE中的文本
+	child = subprocess.Popen(["cat"], stdin=subprocess.PIPE)
+	child.communicate("vamei")
+	cat会等待输入，直到我们用communicate()输入"vamei"
+'''
 def sub_mode():
     #command 1
     uname = "uname"

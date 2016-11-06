@@ -415,4 +415,38 @@ print 'Type is : %s .' % args.port
 	user = raw_input('Please input user name:')
 	passwd = getpass.getpass('Please input your password:')
 
+#----------------------13------------------------------------
+#configparser 模块读取配置文件
+'''
+1.初始化:
+	使用ConfigParser 首选需要初始化实例，并读取配置文件
+	cf = ConfigParser.ConfigParser()
+	cf.read("配置文件名")
+2.ConfigParser 常用方法
+	获取所有sections。也就是将配置文件中所有“[ ]”读取到列表中
+	s = cf.sections()
+	获取指定section 的options。即将配置文件某个section 内key 读取到列表中
+	o = cf.options("db")
+	获取指定section 的配置信息
+	v = cf.items("db")
+	按照类型读取指定section 的option 信息,同样的还有getfloat、getboolean,getint
+	db_host = cf.get("db", "db_host")
+	设置某个option 的值
+	cf.set("db", "db_pass", "zhaowei")
+	cf.write(open("test.conf", "w"))
+	添加一个section
+	cf.add_section('liuqing')
+	删除一个seciion 或者option
+	cf.remove_option('liuqing','int')
+	cf.remove_section('liuqing')
+	cf.write(open("test.conf", "w"))
 
+
+
+'''
+
+#----------------------14------------------------------------
+#webbrowser 模块启动一个浏览器
+#import webbroweser
+#webbrowser.open('http://www.python.org') webbrowser.open_new_tab('http://www.python.org')
+#c = webbrowser.get('firefox')  c.open('http://www.python.org')

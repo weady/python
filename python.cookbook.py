@@ -34,6 +34,33 @@
     a.keys() - b.keys() 发现在a中不在b中
     a.keys() ^ b.keys() 发现字典a,b 中的不同key
     a.items() & b.items() 发现字典中的相同(key,value)
+    
+    python 迭代器(iterator)
+    for循环可用于任何“可迭代对象”，这其实就是迭代器
+    迭代器是一个实现了迭代器协议的对象，Python中的迭代器协议就是有next方法的对象会前进到下一结果
+    生成器(constructor)
+    包含yield语句的函数会被特地编译成生成器,当函数被调用时,他们返回一个生成器对象
+    这个对象支持迭代器接口。函数也许会有个return语句，但它的作用是用来yield产生值的
+    不像一般的函数会生成值后退出,生成器函数在生成值后会自动挂起并暂停他们的执行和状态
+    他的本地变量将保存状态信息,这些信息在函数恢复时将再度有效
+    先yield来装入数据、产出generator object、使用next()来释放
+    生成器函数 next()读取生成器数 send()可以向生成器传递参数
+    使用生成器就不需要返回整个列表，每次都只是返回一个数据，避免了内存的限制问题
+
+    内置的 slice() 函数创建了一个切片对象，可以被用在任何切片允许使用的地方
+    a = slice(2, 4) items(a) == items[2:4]
+    如果你有一个切片对象a，你可以分别调用它的 a.start , a.stop , a.step
+
+    获取一个序列中重现次数最多的元素
+    collections.Counter 类就是专门为这类问题而设计的， 它甚至有一个有用的 most_common() 方法
+    from collections import Counter
+    word_counts = Counter(words)
+    # 出现频率最高的3个单词
+    top_three = word_counts.most_common(3)
+    print(top_three)
+    
+
+
 
 
 #--------------------第二章----------------------------------

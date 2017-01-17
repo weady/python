@@ -58,7 +58,31 @@
     # 出现频率最高的3个单词
     top_three = word_counts.most_common(3)
     print(top_three)
-    
+    查找两个字典的相同点(相同的键或者相同的值)
+    # Find keys in common
+    a.keys() & b.keys() # { 'x', 'y' }
+    # Find keys in a that are not in b
+    a.keys() - b.keys() # { 'z' }
+    # Find (key,value) pairs in common
+    a.items() & b.items() # { ('y', 2) }
+    keys()键视图的一个很少被了解的特性就是它们也支持集合操作，比如集合并、交、差运算
+    values()在值上面执行这些集合操作的话，你可以先将值集合转换成set，然后再执行集合运算就行了
+
+    通过某个关键字排序一个字典列表
+    from operator import itemgetter
+    rows_by_fname = sorted(rows, key=itemgetter('fname')) fname代表字典的key
+    rows_by_fname = sorted(rows, key=lambda r: r['fname'])
+
+    合并多个字典可以使用update() 或者使用collections 模块中的 ChainMap 类
+    一个 ChainMap 接受多个字典并将它们在逻辑上变为一个字典然后
+    这些字典并不是真的合并在一起了ChainMap 类只是在内部创建了一个容纳这些字典的列表
+    并重新定义了一些常见的字典操作来遍历这个列表
+    如果出现重复键，那么第一次出现的映射值会被返回。 
+    因此，例子程序中的 c['z'] 总是会返回字典 a 中对应的值，而不是 b 中对应的值
+
+
+
+
 
 
 

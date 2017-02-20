@@ -20,6 +20,7 @@ function get_soft(){
 }
 
 function install_soft(){
+	yum instal -q -y gcc c++ zlib* openssl openssl-devel >/dev/null 2>&1
 	cd $soft_path
 	tar zxvf Python-2.7.12.tgz &>/dev/null
 	cd Python-2.7.12

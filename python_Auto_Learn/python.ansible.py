@@ -174,4 +174,13 @@ when:result|success 表示当变量result执行结果为成功状态时，执行
     │       └── templates
     └── site.yml	#该playbook的入口文件
 
+#远程切换root用户执行命令
+
+ansible -i no_install_zb_agent.txt noagent -S -R root -m shell -a 'w'
+
+[noagent]
+10.204.1.22
+[noagent:vars]
+ansible_ssh_pass='xxxx' #登录用户密码
+ansible_su_pass='xxxx' #root用户密码
 

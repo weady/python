@@ -11,12 +11,9 @@ import Queue
 
 reload(sys)
 sys.setdefaultencoding('utf8')
-
 '''
 Python的Queue模块中提供了同步的、线程安全的队列类，包括FIFO（先入先出)队列Queue，LIFO（后入先出）队列LifoQueue，和优先级队列PriorityQueue。这些队列都实现了锁原语，能够在多线程中直接使用。可以使用队列来实现线程间的同步。
-
 Queue模块中的常用方法:
-
 Queue.qsize() 返回队列的大小
 Queue.empty() 如果队列为空，返回True,反之False
 Queue.full() 如果队列满了，返回True,反之False
@@ -27,9 +24,7 @@ Queue.put(item) 写入队列，timeout等待时间
 Queue.put_nowait(item) 相当Queue.put(item, False)
 Queue.task_done() 在完成一项工作之后，Queue.task_done()函数向任务已经完成的队列发送一个信号
 Queue.join() 实际上意味着等到队列为空，再执行别的操作
-
 datetime.now().strftime('%Y-%m-%d %H:%M:%S') 日期格式
-
 '''
 
 exitFlag = 0
@@ -60,14 +55,12 @@ class Logger:
         sh.setLevel(clevel)
         #设置文件日志
         fh = logging.FileHandler(path)
-        fh.setFormatter(fmt)
+      	fh.setFormatter(fmt)
         fh.setLevel(Flevel)
-        
         self.logger.addHandler(fh)
 
-    #def debug(self,message):
-    #    self.logger.debug(message)
-    
+    def debug(self,message):
+        self.logger.debug(message)
     def info(self,message):
         self.logger.info(message)
 
@@ -88,12 +81,13 @@ def work(q,user,passwd):
             process_data(host,user,passwd)
             queueLock.release()
         else:
+	    print 'test'
             queueLock.release()
 	    break
         time.sleep(1)
 
 #处理函数
-loginfo = Logger('rsync_log_file.log', logging.INFO)
+loginfo = Logger('/app/scripts/rsync_log_file.log', logging.INFO)
 def process_data(host,user,passwd):
 
     HOST_NAME = host
@@ -107,8 +101,8 @@ def process_data(host,user,passwd):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     tmp_file_list = []
     try:
-        ssh.connect(hostname = HOST_NAME, username = USER_NAME, password = PASSWD)
-        stdin,stdout,stderr=ssh.exec_command(''' find /app/applogs* -type f -name "*.%s.log" ''' % yesterday ,timeout = 30.0)    
+        ssh.connect(hostname = HOST_NAME, username = USER_NAME, password = PASSWD, timeout=5)
+        stdin,stdout,stderr=ssh.exec_command(''' find /app/applogs* -type f -name "*.%s.log" ''' % yesterday ,timeout = 10)    
         for name in stdout.readlines():
             if name:
                 tmp_file_list.append(name.strip('\n'))
@@ -116,6 +110,7 @@ def process_data(host,user,passwd):
     except Exception,e:
         loginfo.error(str(e))
 	loginfo.error("[ %s ] 获取日志文件失败" % HOST_NAME)
+	return 
 
     finally:
         ssh.close()
@@ -132,7 +127,9 @@ def process_data(host,user,passwd):
             src_path = os.path.split(FILE)[0]
             tmp_dest_path = '/'.join(src_path.split('/')[3:])
 	    year = datetime.datetime.now().strftime('%Y')
-            dest_path = os.path.join('/app/applogs',year,tmp_dest_path)
+	    month = datetime.datetime.now().strftime('%m')
+	    day = str(yesterday).split('-')[2]
+            dest_path = os.path.join('/data_log/app/applogs',year,month,day,tmp_dest_path)
             if not os.path.exists(dest_path):
                 os.makedirs(dest_path)
 
@@ -141,8 +138,9 @@ def process_data(host,user,passwd):
             sftp.get(FILE,dest_file)
 
     except Exception as e:
-	loginfo.error("[ %s ] 下载日志文件" % (HOST_NAME))
+	loginfo.error("[ %s ] 下载日志文件失败" % (HOST_NAME))
         loginfo.error(str(e))
+	return 
 
     finally:
         ssh_download.close()
@@ -169,14 +167,39 @@ def get_client_ip():
                 cursor.close()
                 db.close()
 
+#获取主机列表从文件中
+def get_hosts_list():
+	host_list = []
+	with open("ip.txt") as f:
+		for line in f:
+			if line:
+				host_list.append(line.strip('\n'))
+	return host_list
+
+#日志会滚功能
+def roll_back_log():
+	yesterday = datetime.date.today() - datetime.timedelta(days=3)
+
+	with open("/app/scripts/rsync_log_file.log","r") as f:
+    		lines = f.readlines()
+
+	with open("/app/scripts/rsync_log_file.log","w") as f_w:
+    		for line in lines:
+			if str(yesterday) in line and line:
+         	   		continue
+
+        		f_w.write(line)
+
+
 #主函数
 def main():
-    IP_List = ["192.168.137.2","192.168.137.4","192.168.137.5"]
+    IP_List = get_hosts_list()
+
     threads = []
 
     # 创建新线程
     for i in range(1,21):
-        th = myThread(workQueue,'root','xxxx')
+        th = myThread(workQueue,'xxxx','xxxxxx')
         threads.append(th)
 
     #启动线程
@@ -190,8 +213,8 @@ def main():
     queueLock.release()
 
     # 等待队列清空
-    while not workQueue.empty():
-        pass
+    #while not workQueue.empty():
+    #    pass
 
     # 通知线程是时候退出
     exitFlag = 1
@@ -203,3 +226,5 @@ def main():
 
 if __name__ == "__main__":
 	main()
+	
+	roll_back_log()

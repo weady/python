@@ -8,7 +8,6 @@ from multiprocessing import Pool, Queue, Process
 import multiprocessing
 import threading
 
-
 #----------------------------------进程和进程池---------------------------------------------------------
 def run_proc(name):
     print "Child process %s (%s) Running....." % (name,os.getpid())

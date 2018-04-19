@@ -8,6 +8,36 @@ from multiprocessing import Pool, Queue, Process
 import multiprocessing
 import threading
 
+#----------------------------------进程和进程池---------------------------------------------------------
+def run_proc(name):
+    print "Child process %s (%s) Running....." % (name,os.getpid())
+
+def creat_process():
+    print "Parent process %s " % os.getpid()
+    for i in range(5):
+        p = Process(target=run_proc,args=(str(i),))
+        print "Process will start"
+        p.start()
+
+    p.join()
+    print "Process end"
+
+def run_pool_proc(name):
+        print "task %s (pid = %s) is runngin.... " %(name,os.getpid())
+        time.sleep(random.random() * 3)
+        print 'task %s end' % name
+
+def create_pool_process():
+    print 'current process %s ' % os.getpid()
+    p = Pool(processes=3)
+    for i in range(5):
+        p.apply_async(run_pool_proc,args=(i,))
+
+    print 'waiting for all subprocesses done...'
+    p.close()
+    p.join()
+    print 'all subprocesses done'
+
 #----------------------------------多进程---------------------------------------------------------
 #进程池通信
 def run_pool_pro(name):
@@ -147,3 +177,6 @@ if __name__ == '__main__':
     #proc_pipe()
     #create_thread_01()
     create_thread_02()
+
+if __name__ == '__main__':
+    create_pool_process()

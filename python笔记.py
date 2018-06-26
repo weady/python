@@ -2593,8 +2593,7 @@ f.__doc__ 函数文档字符串
 f.__moudle__ 函数所属的模块名
 f.__dict__ 属性字典
 f.__defaults__ 默认参数元祖
-使用修饰器函数后原函数的元数据被修改了，可以利用functools 模块中的wraps进行还原@wraps(func)
-带参数的装饰器结果
+使用修饰器函数后原函数的元数据被修改了，可以利用functools 模块中的wraps进行还原@wraps(func)带参数的装饰器结果
 
 def warn(time):
 	def decorator(func):
@@ -2606,3 +2605,45 @@ def warn(time):
 isinstance(value,(int,float)) 类型判断
 threading.local()创建的对象中的属性，是对于每个线程独立存在的，它们相互之间无法干扰，我们称它为线程本地数据
 # 使用装饰器来保存被装饰方法的元数据 @wraps(func) def wrap(*args):
+属性：  公有属性  （属于类，每个类一份）  普通属性（属于对象，每个对象一份） 私有属性    （属于对象，跟普通属性相似，只是不能通过对象直接访问） 
+方法：（按作用）　构造方法 析构函数
+方法：（按类型）普通方法 私有方法（方法前面加两个下划线）　静态方法 类方法　属性方法
+实力方法:
+class Foo:
+    def __init__(self, name):
+        self.name = name
+    def hi(self):
+        print self.name
+if __name__ == '__main__':
+    foo01 = Foo('letian')
+    foo01.hi()
+Foo的type为classobj（类对象，python中定义的类本身也是对象），foo01的type为instance（实例）。
+而hi()是实例方法，所以foo01.hi()会输出'letian'。实例方法的第一个参数默认为self，代指实例。
+self不是一个关键字，而是约定的写法。init()是生成实例时默认调用的实例方法
+实例方法就是类的实例能够使用的方法
+静态方法是一种普通函数，就位于类定义的命名空间中，它不会对任何实例类型进行操作。
+使用装饰器@staticmethod定义静态方法。类对象和实例都可以调用静态方法
+类方法是将类本身作为对象进行操作的方法。类方法使用@classmethod装饰器定义，其第一个参数是类，约定写为cls。类对象和实例都可以调用类方法
+super用来执行父类中的函数
+类变量定义在类的定义之后，实例变量则是以为self.开头
+class Foo(object):
+    val = 0  #类变量
+    def __init__(self):
+        self.val = 1 实例变量
+	
+class Foo(object):
+    val = 3
+    def __init__(self):
+        print self.__class__.val  ＃通过这张方式访问类变量
+子类（派生类）并不会自动调用父类（基类）的init方法
+class Foo2(Foo): ＃Foo为父类
+    def __init__(self):
+        Foo.__init__(self)   //类调用实例方法时，需要传入self指代的实例
+        print self.val
+	
+class Foo2(Foo):
+    def __init__(self):
+        super(Foo2, self).__init__()  
+        print self.val
+
+

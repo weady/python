@@ -2623,7 +2623,30 @@ self不是一个关键字，而是约定的写法。init()是生成实例时默�
 实例方法就是类的实例能够使用的方法
 静态方法是一种普通函数，就位于类定义的命名空间中，它不会对任何实例类型进行操作。
 使用装饰器@staticmethod定义静态方法。类对象和实例都可以调用静态方法
+@staticmethod
+静态方法，通过类直接调用，不需要创建对象，不会隐式传递self
 类方法是将类本身作为对象进行操作的方法。类方法使用@classmethod装饰器定义，其第一个参数是类，约定写为cls。类对象和实例都可以调用类方法
+@classmethod
+类方法，方法中的self是类本身，调用方法时传的值也必须是类的公有属性，
+就是说类方法只能操作类本身的公有字段
+class Dog(object):
+    food = "gutou"
+    age = "1"
+    def __init__(self, name):
+        self.NAME = name
+    @classmethod
+    def eat(self,age): #只能是类中的变量
+        print(age)
+        print(self.food)
+    @classmethod
+    def eat1(self, age):  # 只能是类中的变量
+        # print(self.NAME)
+        age = "2"
+        self.food = "tang"
+    @staticmethod
+    def print_1():
+        print(Dog.food, Dog.age)
+	
 super用来执行父类中的函数
 类变量定义在类的定义之后，实例变量则是以为self.开头
 class Foo(object):

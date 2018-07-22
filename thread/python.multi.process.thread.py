@@ -8,6 +8,50 @@ from multiprocessing import Pool, Queue, Process
 import multiprocessing
 import threading
 
+‘’‘
+    Queue的功能是将每个核或线程的运算结果放在队里中，等到每个线程或核运行完毕后再从队列中取出结果
+    继续加载运算。原因很简单，多线程调用的函数不能有返回值，所以使用Queue存储多个线程运算的结果
+    pool = mp.Pool()
+    有了池子之后，就可以让池子对应某一个函数，我们向池子里丢数据，池子就会返回函数返回的值。
+    Pool和之前的Process的不同点是丢向Pool的函数有返回值，而Process的没有返回值
+    接下来用map()获取结果，在map()中需要放入函数和需要迭代运算的值
+    Pool默认大小是CPU的核数，我们也可以通过在Pool中传入processes参数即可自定义需要的核数量
+    pool = mp.Pool(processes=3)
+    res = pool.map(job, range(10))
+    print(res)
+    apply_async()中只能传递一个值，它只会放入一个核进行运算，但是传入值时要注意是可迭代的
+    所以在传入值后需要加逗号, 同时需要用get()方法获取返回值
+    # 用get获得结果
+    print(res.get())
+    # 迭代器，i=0时apply一次，i=1时apply一次等等
+    multi_res = [pool.apply_async(job, (i,)) for i in range(10)]
+    # 从迭代器中取出
+    print([res.get() for res in multi_res])
+    共享内存：
+    import multiprocessing as mp
+    value1 = mp.Value('i', 0) 
+    value2 = mp.Value('d', 3.14)
+    其中d和i参数用来设置数据类型的，d表示一个双精浮点类型，i表示一个带符号的整型
+    array = mp.Array('i', [1, 2, 3, 4]) 一维数组
+    l = mp.Lock() # 定义一个进程锁
+    v = mp.Value('i', 0) # 定义共享内存
+    l.acquire() # 锁住
+    do something
+    l.release() # 释放
+    线程模块常用函数:
+    threading.active_count() #活跃线程数
+    threading.enumerate() #线程信息
+    threading.current_thread() #当前线程
+    add_thread = threading.Thread(target=thread_job,)   # 定义线程 
+    add_thread.start() #启动线程
+    add_thread.join() #主线程等待子线程全部运行完后才开始运行
+    q.get() #从队列中获取值
+
+    lock在不同线程使用同一共享内存时，能够确保线程之间互不影响，使用lock的方法是
+    在每个线程执行运算修改共享内存之前，执行lock.acquire()将共享内存上锁
+    确保当前线程执行时，内存不会被其他线程访问，执行运算完毕后，使用lock.release()将锁打开
+    保证其他的线程可以使用该共享内存
+’‘’
 #----------------------------------进程和进程池---------------------------------------------------------
 def run_proc(name):
     print "Child process %s (%s) Running....." % (name,os.getpid())

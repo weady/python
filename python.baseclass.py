@@ -693,3 +693,64 @@ class ZFile(object):
     z.extract_to(path)
     z.close()
   '''
+
+#操作redis 批量插入数据
+class Redis_Handler(Handler):
+	def connect(self):
+		#print self.host,self.port,self.table
+		self.conn = Connection(self.host,self.port,self.table)	
+		
+	def execute(self, action_name):
+		filename = "/tmp/temp.txt"
+		batch_size = 10000
+		with open(filename) as file:
+			try:
+				count = 0
+				pipeline_redis = self.conn.client.pipeline()
+				for lines in file:
+					(key,value) = lines.split(',')
+						count = count + 1
+						if len(key)>0:
+							pipeline_redis.rpush(key,value.strip())
+							if not count % batch_size:
+								pipeline_redis.execute()
+								count = 0
+			
+	
+				#send the last batch
+				pipeline_redis.execute()
+			except Exception:
+				print 'redis add error'
+import hashlib                
+#计算文件的md5
+def sumfile(fobj):
+    m = hashlib.md5()
+    while True:
+        d = fobj.read(8096)
+        if not d:
+            break
+        m.update(d)
+    return m.hexdigest()
+
+def md5sum(fname):
+    if fname == '-':
+        ret = sumfile(sys.stdin)
+    else:
+        try:
+            f = file(fname, 'rb')
+        except:
+            return 'Failed to open file'
+        ret = sumfile(f)
+        f.close()
+    return ret
+
+#redis 连接类
+class redis_conn(object):
+    def __init__(self, hostname="127.0.0.1", port='6379', db_num=0):
+        self.hostname = hostname
+        self.port = port
+        self.db_num = db_num
+    def conn_redis(self):
+        pool = redis.ConnectionPool(host=self.hostname, port=self.port, db=self.db_num)
+        rds = redis.Redis(connection_pool = pool)
+        return rds
